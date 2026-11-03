@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US Mailbox - Sistema de E-mails Aleatórios (@sapokas.com)</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo-badge">
+          <span class="flag-icon">🇺🇸</span>
+          <div class="logo-text">
+            <h1>US Mailbox <span class="badge-domain">@sapokas.com</span></h1>
+            <p>Gerador de Identidades dos EUA & Leitor de Códigos de Verificação</p>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button class="btn btn-secondary btn-sm hide-in-guest" id="btnOpenSavedInboxes">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Minhas Caixas Salvas (<span id="savedInboxesCount">0</span>)
+        </button>
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span id="systemStatusText">Servidor Ativo</span>
+        </div>
+        <button class="btn btn-secondary btn-sm hide-in-guest" id="btnOpenCloudflareGuide">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Guia de Conexão DNS
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="main-layout">
+      <!-- Left Sidebar: Generator & Controls -->
+      <aside class="sidebar">
+        <!-- Identity Generator Card -->
+        <section class="card generator-card">
+          <div class="guest-banner" id="guestBanner">
+            🔒 Acesso Exclusivo à Caixa de Entrada
+          </div>
+
+          <div class="card-header">
+            <h2 id="cardHeaderTitle">E-mail Selecionado</h2>
+            <span class="badge-mode" id="currentModeBadge">🌐 E-mail Real Ativo</span>
+          </div>
+
+          <!-- Mode Switcher Tabs -->
+          <div class="mode-tabs hide-in-guest">
+            <button class="mode-tab active" id="btnModeCloud" title="E-mail funcional na internet agora sem precisar de domínio">
+              🌐 Web Real (Ativo Agora)
+            </button>
+            <button class="mode-tab" id="btnModeSapokas" title="Usar seu domínio sapokas.com">
+              ⚙️ @sapokas.com
+            </button>
+          </div>
+
+          <div class="domain-warning hide-in-guest" id="domainWarning" style="display: none;">
+            ⚠️ <strong>Atenção:</strong> Para receber e-mails em <code>@sapokas.com</code>, você precisa registrar o domínio no Cloudflare (veja o "Guia de Conexão DNS"). Se quer receber códigos agora em qualquer site, use a aba <strong>"Web Real (Ativo Agora)"</strong>.
+          </div>
+
+          <div class="email-display-box">
+            <label for="currentEmail">Endereço de E-mail</label>
+            <div class="input-with-copy">
+              <input type="text" id="currentEmail" readonly value="gerando...">
+              <button class="btn-copy" id="btnCopyEmail" title="Copiar E-mail">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copiar</span>
+              </button>
+            </div>
+            <div class="copy-alert" id="copyAlert">Copiado para a área de transferência!</div>
+          </div>
+
+          <!-- Permanent Access Link Box -->
+          <div class="permanent-link-box hide-in-guest">
+            <div class="link-label-row">
+              <label for="permanentLinkInput">🔗 Link Compartilhável (Somente Leitura)</label>
+              <span class="badge-permanent">Salvo no Banco</span>
+            </div>
+            <div class="input-with-copy">
+              <input type="text" id="permanentLinkInput" readonly value="gerando link...">
+              <button class="btn-copy btn-copy-link" id="btnCopyPermanentLink" title="Copiar Link Permanente">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <span>Copiar Link</span>
+              </button>
+            </div>
+            <div class="copy-alert" id="copyLinkAlert">Link exclusivo copiado!</div>
+
+            <!-- Mobile Button positioned at the bottom -->
+            <button class="btn btn-secondary btn-block btn-mobile-trigger" id="btnOpenQrModal">
+              📱 Abrir no Celular / Gerar QR Code
+            </button>
+
+            <small class="permanent-link-hint">📌 Funciona no PC e Celular. Quem acessar este link verá apenas a caixa deste e-mail para ler códigos.</small>
+          </div>
+
+          <!-- US Identity Details -->
+          <div class="identity-details">
+            <div class="detail-row">
+              <span class="detail-label">👤 Nome Completo:</span>
+              <span class="detail-val" id="identityFullName">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">📍 Localização EUA:</span>
+              <span class="detail-val" id="identityLocation">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">📞 Telefone EUA:</span>
+              <span class="detail-val font-mono" id="identityPhone">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">🏷️ ID de Registro:</span>
+              <span class="detail-val font-mono" id="identityId">-</span>
+            </div>
+          </div>
+
+          <!-- Generator Buttons -->
+          <div class="generator-actions">
+            <button class="btn btn-primary btn-block hide-in-guest" id="btnGenerateEmail">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
+              Gerar Novo E-mail Americano
+            </button>
+            <div class="active-pulse-info" id="activePulseInfo">
+              <span class="pulse-dot-green"></span>
+              <span id="activeInboxStatus">Monitorando mensagens em tempo real...</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Test & Simulator Card -->
+        <section class="card simulator-card hide-in-guest">
+          <div class="card-header">
+            <h3>Simulador de Teste</h3>
+          </div>
+          <p class="simulator-desc">Envie um e-mail com código OTP para o endereço atual para ver o sistema em ação:</p>
+          <div class="simulator-form">
+            <select id="selectService" class="select-input">
+              <option value="Steam">Steam Guard (Código 6 Dígitos)</option>
+              <option value="Discord">Discord Security (Código 6 Dígitos)</option>
+              <option value="Google">Google Verification (G-XXXXXX)</option>
+              <option value="Netflix">Netflix Access Code</option>
+            </select>
+            <button class="btn btn-secondary btn-block" id="btnSimulateEmail">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              Disparar E-mail de Teste
+            </button>
+          </div>
+        </section>
+
+        <!-- System Connection Info -->
+        <section class="card info-card hide-in-guest">
+          <h4>Status dos Endpoints</h4>
+          <ul class="endpoint-list">
+            <li>
+              <span class="endpoint-name">SMTP Server:</span>
+              <span class="endpoint-val font-mono">0.0.0.0:2525</span>
+            </li>
+            <li>
+              <span class="endpoint-name">Webhook Catch-all:</span>
+              <span class="endpoint-val font-mono">/api/webhook/email</span>
+            </li>
+            <li>
+              <span class="endpoint-name">Banco SQLite:</span>
+              <span class="endpoint-val">emails.db (Ativo)</span>
+            </li>
+          </ul>
+        </section>
+      </aside>
+
+      <!-- Right Area: Inbox & Email Viewer -->
+      <section class="content-area">
+        <!-- Inbox Controls Header -->
+        <div class="inbox-toolbar">
+          <div class="toolbar-left">
+            <h2>Caixa de Entrada</h2>
+            <div class="filter-tabs">
+              <button class="filter-tab hide-in-guest" id="tabAll">Todos (<span id="countTotal">0</span>)</button>
+              <button class="filter-tab active" id="tabCurrentOnly">Apenas Atual</button>
+            </div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn btn-ghost btn-sm" id="btnRefreshInbox" title="Atualizar mensagens">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              Atualizar
+            </button>
+            <button class="btn btn-ghost btn-sm btn-danger-text hide-in-guest" id="btnClearInbox" title="Apagar todos os e-mails">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        <!-- Split View: Email List + Email Reader -->
+        <div class="inbox-split-view">
+          <!-- Email List Container -->
+          <div class="email-list-column">
+            <div class="email-list" id="emailListContainer">
+              <div class="empty-state">
+                <div class="empty-icon">📬</div>
+                <h3>Nenhum e-mail recebido ainda</h3>
+                <p>Envie um e-mail para o endereço gerado ou use o botão "Disparar E-mail de Teste" ao lado.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email Reader Column -->
+          <div class="email-reader-column" id="emailReaderContainer">
+            <div class="empty-reader">
+              <div class="reader-placeholder-icon">📩</div>
+              <p>Selecione um e-mail na lista para visualizá-lo e extrair o código.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: QR Code & Mobile Link -->
+    <div class="modal-backdrop" id="modalQrCode">
+      <div class="modal-dialog modal-dialog-sm">
+        <div class="modal-header">
+          <h3>📱 Acessar no Celular</h3>
+          <button class="btn-close" id="btnCloseQrCode">&times;</button>
+        </div>
+        <div class="modal-body text-center">
+          <p>Aponte a câmera do seu celular para o QR Code abaixo para abrir instantaneamente no navegador móvel:</p>
+          
+          <div class="qr-image-wrapper">
+            <img id="qrCodeImg" src="" alt="QR Code para Celular" class="qr-code-img">
+          </div>
+
+          <div class="mobile-link-box">
+            <label>Link Direto para o Celular:</label>
+            <div class="input-with-copy">
+              <input type="text" id="mobileLinkInput" readonly value="">
+              <button class="btn-copy btn-copy-link" id="btnCopyMobileLink">Copiar</button>
+            </div>
+          </div>
+
+          <div class="qr-modal-actions">
+            <a href="#" target="_blank" class="btn btn-whatsapp btn-block" id="btnShareWhatsapp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>
+              Enviar pelo WhatsApp
+            </a>
+          </div>
+
+          <small class="hint-text mt-8 text-emerald">🌐 Link Público Global: Funciona em 4G, 5G, Wi-Fi ou qualquer lugar do mundo!</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btnCloseQrCodeFooter">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Saved Inboxes History -->
+    <div class="modal-backdrop" id="modalSavedInboxes">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Suas Caixas de E-mail Salvas</h3>
+          <button class="btn-close" id="btnCloseSavedInboxes">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Todas as contas e e-mails que você gerou ficam salvos permanentemente no banco de dados local. Clique em qualquer uma para abri-la ou copie seu link direto:</p>
+          <div class="saved-inboxes-list" id="savedInboxesContainer">
+            <div class="empty-state">
+              <p>Nenhuma caixa salva ainda.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btnCloseSavedInboxesFooter">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Cloudflare & DNS Catch-all Guide -->
+    <div class="modal-backdrop" id="modalGuide">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>Como conectar seu domínio @sapokas.com</h3>
+          <button class="btn-close" id="btnCloseGuide">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p>Para receber e-mails reais de serviços da internet (como Steam, Discord, Google, etc.) em qualquer endereço aleatório <code>*@sapokas.com</code>, você precisa de um <strong>Catch-All</strong>. A forma mais simples e 100% gratuita é com o <strong>Cloudflare Email Routing</strong>:</p>
+
+          <ol class="guide-steps">
+            <li>
+              <strong>1. Adicione seu domínio no Cloudflare (Plano Gratuito)</strong>
+              <p>Altere os servidores DNS do seu domínio para os fornecidos pelo Cloudflare.</p>
+            </li>
+            <li>
+              <strong>2. Ative o Email Routing</strong>
+              <p>No painel do Cloudflare, vá em <em>Email Routing</em> e clique em <em>Enable</em> (ele adiciona os registros MX automaticamente com 1 clique).</p>
+            </li>
+            <li>
+              <strong>3. Crie um Worker Gratuito para encaminhar ao seu Webhook</strong>
+              <p>Vá em <em>Email Routing &rarr; Email Workers &rarr; Create Worker</em> e cole o código abaixo:</p>
+              <pre class="code-block" id="cfWorkerCode">Carregando código...</pre>
+              <button class="btn btn-secondary btn-sm" id="btnCopyWorkerCode">Copiar Script do Worker</button>
+            </li>
+            <li>
+              <strong>4. Configure a Regra Catch-All</strong>
+              <p>Em <em>Routing Rules</em>, defina a regra "Catch-all":<br>
+              <strong>Se e-mail for para qualquer endereço (*@sapokas.com) &rarr; Enviar para o Worker que você criou.</strong></p>
+            </li>
+          </ol>
+
+          <div class="info-callout">
+            💡 <strong>Dica:</strong> Se você estiver rodando no seu computador pessoal local, você pode usar uma ferramenta gratuita como <code>Cloudflare Tunnel</code> ou <code>ngrok</code> para expor a porta <code>3000</code> na internet para o webhook!
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btnCloseGuideFooter">Entendi</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

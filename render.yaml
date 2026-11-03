@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sapokamail
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.11.0
